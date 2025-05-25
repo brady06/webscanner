@@ -2,14 +2,15 @@
 # - requests or httpx
 # - BeautifulSoup
 # - urlparse, urljoin, etc.
+from urllib.parse import urlparse, urljoin
 
 # Function: is_same_domain()
 # - Compares two URLs to check if they belong to the same site
-
 def is_same_domain(url1, url2):
-    curr_url1 = url1
-    curr_url2 = url2
-    if(curr_url1[0, ])
+    url1_domain = urlparse(url1).netloc.lower()
+    url2_domain = urlparse(url2).netloc.lower()
+    return url1_domain == url2_domain
+    
 
 # Function: extract_links()
 # - Takes raw HTML and base URL
@@ -17,7 +18,7 @@ def is_same_domain(url1, url2):
 # - Finds <a href="..."> tags and normalizes them with urljoin
 # - Filters out external links
 
-def extract_links():
+#def extract_links():
 
 
 # Function: crawl_site()
