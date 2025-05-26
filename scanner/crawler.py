@@ -1,12 +1,12 @@
 # Imports
-# - requests or httpx
-# - BeautifulSoup
-# - urlparse, urljoin, etc.
 from urllib.parse import urlparse, urljoin
+from bs4 import BeautifulSoup
+import requests
 
-# Function: is_same_domain()
-# - Compares two URLs to check if they belong to the same site
-def is_same_domain(url1, url2):
+base_url = ""
+
+# Checks if two urls have the same domain
+def same_domain(url1, url2):
     url1_domain = urlparse(url1).netloc.lower()
     url2_domain = urlparse(url2).netloc.lower()
     return url1_domain == url2_domain
@@ -17,9 +17,26 @@ def is_same_domain(url1, url2):
 # - Parses it with BeautifulSoup
 # - Finds <a href="..."> tags and normalizes them with urljoin
 # - Filters out external links
+def extract_links(url):
+    # get HTML from given url
+    response = requests.get(url)
 
-#def extract_links():
+    # parse all <a> tags with href value
+    soup = BeautifulSoup(response.text, 'lxml')
+    links = [a['href'] for a in soup.find_all('a', href=True)]
 
+    # normalize by adjoining base url if it is not included
+    norm_links = []
+    for link in links:
+        norm_links.append(urljoin(base_url, link))
+
+    # only consider a url if it is in the target scope
+    final_links = []
+    for link in norm_links:
+        if(same_domain(link, base_url)):
+            final_links.append(link)
+
+    return final_links
 
 # Function: crawl_site()
 # - Takes start URL and max depth
