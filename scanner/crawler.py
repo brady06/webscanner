@@ -3,12 +3,6 @@ from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 import requests
 
-# Base_URL for page
-base_url = ""
-
-# Keep track of visited as to not get in a loop
-visited_URLs = []
-
 # Checks if two urls have the same domain
 def same_domain(url1, url2):
     url1_domain = urlparse(url1).netloc.lower()
@@ -19,7 +13,11 @@ def same_domain(url1, url2):
 def extract_links(url):
 
     # get HTML from given url
-    response = requests.get(url)
+    try:
+        response = requests.get(url, timeout=5)
+    except requests.RequestException:
+        print(url + "failed to load in extract_links")
+        return []  # skip failed pages
 
     # parse all <a> tags with href value
     soup = BeautifulSoup(response.text, 'lxml')
@@ -40,7 +38,7 @@ def extract_links(url):
     final_links = []
     for link in target_links:
         if(link not in visited_URLs):
-            visited_URLs.append(link)
+            visited_URLs.add(link)
             final_links.append(link)
 
     return final_links
@@ -58,20 +56,34 @@ def extract_links(url):
 def crawl_helper(curr_url):
     # extract links
     extracted = extract_links(curr_url)
-    final = extracted
+    final = list(extracted)
 
     for link in extracted:
         # recursively add links inside extracted links
-        final.append(crawl_helper(link))
+        final += crawl_helper(link)
 
     return final
 
 # Returns a list of the HTML for each page that is accessable below the given url
 def crawl_site(url):
     # set base
+    global base_url
     base_url = url
+
+    # Keep track of visited as to not get in a loop
+    global visited_URLs
+    visited_URLs = set()
 
     # get list of all accessable pages
     URLs = crawl_helper(url)
     URLs.insert(0, url)
+
+    # make list of HTML for each page
+    HTML_list = []
+    for link in URLs:
+        try:
+            HTML_list.append(requests.get(link, timeout=5))
+        except requests.RequestException:
+            print(link + "failed to load in crawl_site")
     
+    return HTML_list
