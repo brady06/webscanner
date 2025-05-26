@@ -43,16 +43,7 @@ def extract_links(url):
 
     return final_links
 
-# Function: crawl_site()
-# - Takes start URL and max depth
-# - Uses BFS or DFS to visit pages
-# - Keeps track of visited URLs
-# - For each page:
-#     - download it
-#     - if it's HTML, parse and extract links
-#     - enqueue unvisited links for further traversal
-# - Returns: list or set of discovered page URLs
-
+# reccursive helper method
 def crawl_helper(curr_url):
     # extract links
     extracted = extract_links(curr_url)
