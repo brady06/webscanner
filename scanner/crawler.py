@@ -69,19 +69,12 @@ def crawl_site(url):
     URLs = crawl_helper(url)
     URLs.insert(0, url)
 
-    # ---------------------------------- #
-
-    # make list of HTML for each page
-    # HTML_list = []
-    # for link in URLs:
-    #     try:
-    #         HTML_list.append(requests.get(link, timeout=5))
-    #     except requests.RequestException:
-    #         print(link + "failed to load in crawl_site")
+    # make list of response objects for each page
+    response_list = []
+    for link in URLs:
+        try:
+            response_list.append(requests.get(link, timeout=5))
+        except requests.RequestException:
+            print(link + "failed to load in crawl_site")
     
-    # return HTML_list
-
-    # ---------------------------------- #
-
-    # It's better to just return URLs, since I can get more than just the HTML if I have a link
-    return URLs
+    return response_list
