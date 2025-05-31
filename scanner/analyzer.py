@@ -2,6 +2,7 @@
 import crawler
 import issue
 from bs4 import BeautifulSoup, Comment
+import requests
 
 # Returns a list of marked issues and their locations (url)
 def analyze_site(url):
@@ -77,3 +78,17 @@ def HTML_static_checks(response):
             if word in comment.lower():
                 issues.append(issue.Issue("Suspicous comment found in HTML: " + word, response.url))
 
+# Inject url to see if site reflects response
+def reflected_xss_check(url):
+    # Insert
+    test_insert = "<script>alert('xss')</script>"
+    test_url = url + "?xss_test=" + test_insert
+
+    try:
+        response = requests.get(test_url, timeout=5)
+
+        # Check for reflection
+        if test_insert in response.text:
+            issues.append(issue.Issue("Reflected XSS vulnerability detected", test_url))
+    except requests.RequestException:
+        print("Request Issue: " + test_url)
