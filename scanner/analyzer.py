@@ -108,3 +108,17 @@ def test_open_redirect(url):
             issues.append(issue.Issue("Open redirect detected", test_url))
     except requests.RequestException:
         print("Request Issue: " + url)
+
+# Testing whether an error thrown in displayed to the user
+def test_error_disclosure(url):
+    # url that should cause an error
+    test_url = url + "?input=%27%22--"  # ' " --
+
+    # check whether common error message words are displayed
+    try:
+        response = requests.get(test_url, timeout=5)
+        keywords = ["exception", "stack trace", "sql", "traceback", "error in", "warning:"]
+        if any(word in response.text.lower() for word in keywords):
+            issues.append(issue.Issue("Possible error disclosure / debug info", test_url))
+    except requests.RequestException:
+        print("Request Issue: " + url)
