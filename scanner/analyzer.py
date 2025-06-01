@@ -139,3 +139,19 @@ def test_admin_accessibility(url):
                 issues.append(issue.Issue("Accessible admin panel without authentication", test_url))
         except requests.RequestException:
             continue
+
+# Check if turning on debug mode is accessable to users
+def test_debug_mode(url):
+    # Test turning debug on from url
+    debug_url = url + "?debug=true"
+
+    try:
+        # load debug_url
+        response = requests.get(debug_url, timeout=5)
+
+        # Common words to indicate that we are in debug mode
+        debug_indicators = ["debug mode", "trace", "stack", "env", "config", "print_r"]
+        if any(word in response.text.lower() for word in debug_indicators):
+            issues.append(issue.Issue("Debug mode may be enabled", debug_url))
+    except requests.RequestException:
+        print("Request Issue: " + url)
