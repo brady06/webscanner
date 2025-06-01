@@ -3,6 +3,7 @@ import crawler
 import issue
 from bs4 import BeautifulSoup, Comment
 import requests
+from urllib.parse import urlparse, urljoin
 
 # Returns a list of marked issues and their locations (url)
 def analyze_site(url):
@@ -122,3 +123,19 @@ def test_error_disclosure(url):
             issues.append(issue.Issue("Possible error disclosure / debug info", test_url))
     except requests.RequestException:
         print("Request Issue: " + url)
+
+# Tests whether the admin pannel is accessable from a simple link
+def test_admin_accessibility(url):
+    # common paths to admin panel
+    admin_paths = ["/admin", "/admin/login", "/dashboard", "/manage"]
+    
+    for path in admin_paths:
+        test_url = urljoin(url, path)
+        try:
+            response = requests.get(test_url, timeout=5)
+
+            # if the page loaded (code 200) and the user wasn't redirected to a login page
+            if response.status_code == 200 and "login" not in response.url.lower():
+                issues.append(issue.Issue("Accessible admin panel without authentication", test_url))
+        except requests.RequestException:
+            continue
