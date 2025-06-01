@@ -18,6 +18,11 @@ def analyze_site(url):
     for response in response_list:
         check_security_headers(response)
         HTML_static_checks(response)
+        reflected_xss_check(response)
+        test_open_redirect(response)
+        test_error_disclosure(response)
+        test_admin_accessibility(response)
+        test_debug_mode(response)
 
     return issues
 
