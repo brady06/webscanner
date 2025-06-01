@@ -92,3 +92,19 @@ def reflected_xss_check(url):
             issues.append(issue.Issue("Reflected XSS vulnerability detected", test_url))
     except requests.RequestException:
         print("Request Issue: " + test_url)
+
+# Test rediract url
+def test_open_redirect(url):
+    # Set up malicious URL
+    target = "http://evil.com"
+    test_url = url + "?redirect=" + target
+
+    # Test whether the site allows the redirect to take place
+    try:
+        response = requests.get(test_url, allow_redirects=False, timeout=5)
+        # Get "" if there is no "location"
+        location = response.headers.get("Location", "")
+        if target in location:
+            issues.append(issue.Issue("Open redirect detected", test_url))
+    except requests.RequestException:
+        print("Request Issue: " + url)
