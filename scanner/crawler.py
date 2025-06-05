@@ -45,6 +45,11 @@ def extract_links(url):
 
 # reccursive helper method
 def crawl_helper(curr_url):
+    # If max depth has been reached, return nothing
+    if curr_depth >= max_link_depth:
+        return
+    curr_depth += 1
+
     # extract links
     extracted = extract_links(curr_url)
     final = list(extracted)
@@ -56,10 +61,16 @@ def crawl_helper(curr_url):
     return final
 
 # Returns a list of the HTML for each page that is accessable below the given url
-def crawl_site(url):
+def crawl_site(url, max_depth):
     # set base
     global base_url
     base_url = url
+
+    # Don't let the program expand infinitely
+    global max_link_depth
+    max_link_depth = max_depth
+    global curr_depth
+    curr_depth = 0
 
     # Keep track of visited as to not get in a loop
     global visited_URLs
