@@ -28,19 +28,19 @@ def analyze_site(url):
 
 def check_security_headers(response):
     if "Content-Security-Policy" not in response.headers:
-        issues.append(issue.Issue("Missing Content-Security-Policy", response.url))
+        issues.append(issue.Issue("Missing Content-Security-Policy", "MEDIUM", response.url))
 
     if response.headers.get("X-Frame-Options", "").upper() not in ["DENY", "SAMEORIGIN"]:
-        issues.append(issue.Issue("Missing or weak X-Frame-Options", response.url))
+        issues.append(issue.Issue("Missing or weak X-Frame-Options", "MEDIUM", response.url))
 
     if "Strict-Transport-Security" not in response.headers:
-        issues.append(issue.Issue("Missing Strict-Transport-Security", response.url))
+        issues.append(issue.Issue("Missing Strict-Transport-Security", "MEDIUM", response.url))
 
     if response.headers.get("X-Content-Type-Options", "").lower() != "nosniff":
-        issues.append(issue.Issue("Missing or incorrect X-Content-Type-Options", response.url))
+        issues.append(issue.Issue("Missing or incorrect X-Content-Type-Options", "MEDIUM", response.url))
 
     if "Referrer-Policy" not in response.headers:
-        issues.append(issue.Issue("Missing Referrer-Policy", response.url))
+        issues.append(issue.Issue("Missing Referrer-Policy", "LOW", response.url))
 
 def HTML_static_checks(response):
     soup = BeautifulSoup(response.text, 'lxml')
@@ -57,12 +57,12 @@ def HTML_static_checks(response):
             if("csrf" in input.get("name", "").lower()):
                 has_csrf = True
         if not has_csrf:
-            issues.append(issue.Issue("Form missing CSRF token", response.url))
+            issues.append(issue.Issue("Form missing CSRF token", "HIGH", response.url))
 
     # Inline javascript
     for script in soup.find_all("script"):
         if not script.get("src") and script.string:
-            issues.append(issue.Issue("Inline <script> tag found", response.url))
+            issues.append(issue.Issue("Inline <script> tag found", "LOW", response.url))
             break
 
     # Autocomplete enabled on password field
@@ -70,7 +70,7 @@ def HTML_static_checks(response):
     for password in passwords:
         # default return "on" if the setting doesn't exist
         if password.get("autocomplete", "on").lower() == "on":
-            issues.append(issue.Issue("Password input with autocomplete enabled", response.url))
+            issues.append(issue.Issue("Password input with autocomplete enabled", "LOW", response.url))
 
     # Suspicious comments (possible sensitive info)
     sus_words = {
@@ -82,7 +82,11 @@ def HTML_static_checks(response):
     for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
         for word in sus_words:
             if word in comment.lower():
-                issues.append(issue.Issue("Suspicous comment found in HTML: " + word, response.url))
+                issues.append(issue.Issue("Suspicous comment found in HTML: " + word, "LOW", response.url))
+
+    if not response.url.startswith("https://"):
+        issues.append(issue.Issue("Site does not use HTTPS", "LOW", response.url))
+
 
 # Inject url to see if site reflects response
 def reflected_xss_check(url):
@@ -95,7 +99,7 @@ def reflected_xss_check(url):
 
         # Check for reflection
         if test_insert in response.text:
-            issues.append(issue.Issue("Reflected XSS vulnerability detected", test_url))
+            issues.append(issue.Issue("Reflected XSS vulnerability detected", "HIGH", test_url))
     except requests.RequestException:
         print("Request Issue: " + test_url)
 
@@ -111,7 +115,7 @@ def test_open_redirect(url):
         # Get "" if there is no "location"
         location = response.headers.get("Location", "")
         if target in location:
-            issues.append(issue.Issue("Open redirect detected", test_url))
+            issues.append(issue.Issue("Open redirect detected", "HIGH", test_url))
     except requests.RequestException:
         print("Request Issue: " + url)
 
@@ -125,7 +129,7 @@ def test_error_disclosure(url):
         response = requests.get(test_url, timeout=5)
         keywords = ["exception", "stack trace", "sql", "traceback", "error in", "warning:"]
         if any(word in response.text.lower() for word in keywords):
-            issues.append(issue.Issue("Possible error disclosure / debug info", test_url))
+            issues.append(issue.Issue("Possible error disclosure / debug info", "HIGH", test_url))
     except requests.RequestException:
         print("Request Issue: " + url)
 
@@ -141,7 +145,7 @@ def test_admin_accessibility(url):
 
             # if the page loaded (code 200) and the user wasn't redirected to a login page
             if response.status_code == 200 and "login" not in response.url.lower():
-                issues.append(issue.Issue("Accessible admin panel without authentication", test_url))
+                issues.append(issue.Issue("Accessible admin panel without authentication", "MEDIUM", test_url))
         except requests.RequestException:
             continue
 
@@ -157,6 +161,6 @@ def test_debug_mode(url):
         # Common words to indicate that we are in debug mode
         debug_indicators = ["debug mode", "trace", "stack", "env", "config", "print_r"]
         if any(word in response.text.lower() for word in debug_indicators):
-            issues.append(issue.Issue("Debug mode may be enabled", debug_url))
+            issues.append(issue.Issue("Debug mode may be enabled", "MEDIUM", debug_url))
     except requests.RequestException:
         print("Request Issue: " + url)
