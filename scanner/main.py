@@ -1,5 +1,4 @@
-from scanner.crawler import crawl_site
-from scanner.analyzer import analyze_response
+from scanner.analyzer import analyze_site
 from scanner.issue import Issue
 from rich.console import Console
 from rich.table import Table
@@ -31,12 +30,7 @@ def main():
     url = get_url_from_user()
     console.print(f"[yellow]Scanning...[/yellow] [italic]{url}[/italic]")
 
-    responses = crawl_site(url)
-    all_issues = []
-
-    for response in responses:
-        issues = analyze_response(response)
-        all_issues.extend(issues)
+    all_issues = analyze_site(url)
 
     console.print(f"\n[bold cyan]Scan complete! Found {len(all_issues)} issue(s).[/bold cyan]")
     display_results(all_issues)
