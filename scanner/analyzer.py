@@ -6,9 +6,10 @@ import requests
 from urllib.parse import urlparse, urljoin
 
 # Returns a list of marked issues and their locations (url)
-def analyze_site(url):
+def analyze_site(url, max_depth):
     # Crawl the site for all relevent links
-    response_list = crawler.crawl_site(url)
+
+    response_list = crawler.crawl_site(url, max_depth)
 
     # Issues list to append to
     global issues
