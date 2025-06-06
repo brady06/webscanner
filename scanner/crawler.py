@@ -61,7 +61,7 @@ def crawl_helper(curr_url):
     return final
 
 # Returns a list of the HTML for each page that is accessable below the given url
-def crawl_site(url, max_depth):
+def crawl_site(url, max_depth=2):
     # set base
     global base_url
     base_url = url
