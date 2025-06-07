@@ -22,7 +22,7 @@ def display_results(issues: list[Issue]):
 
     for issue in issues:
         severity = getattr(issue, "severity", "MEDIUM")  # default if not set
-        table.add_row(severity.upper(), issue.title, issue.url)
+        table.add_row(severity.upper(), issue.issue, issue.url)
 
     console.print(table)
 
@@ -30,7 +30,8 @@ def main():
     url = get_url_from_user()
     console.print(f"[yellow]Scanning...[/yellow] [italic]{url}[/italic]")
 
-    all_issues = analyze_site(url)
+    # Max depth = 2 for testing purposes
+    all_issues = analyze_site(url, 2)
 
     console.print(f"\n[bold cyan]Scan complete! Found {len(all_issues)} issue(s).[/bold cyan]")
     display_results(all_issues)

@@ -1,6 +1,6 @@
 # Imports
-import crawler
-import issue
+from scanner import crawler
+from scanner import issue
 from bs4 import BeautifulSoup, Comment
 import requests
 from urllib.parse import urlparse, urljoin
@@ -90,78 +90,78 @@ def HTML_static_checks(response):
 
 
 # Inject url to see if site reflects response
-def reflected_xss_check(url):
+def reflected_xss_check(response):
     # Insert
     test_insert = "<script>alert('xss')</script>"
-    test_url = url + "?xss_test=" + test_insert
+    test_url = response.url + "?xss_test=" + test_insert
 
     try:
-        response = requests.get(test_url, timeout=5)
+        response_test = requests.get(test_url, timeout=5)
 
         # Check for reflection
-        if test_insert in response.text:
+        if test_insert in response_test.text:
             issues.append(issue.Issue("Reflected XSS vulnerability detected", "HIGH", test_url))
     except requests.RequestException:
         print("Request Issue: " + test_url)
 
 # Test rediract url
-def test_open_redirect(url):
+def test_open_redirect(response):
     # Set up malicious URL
     target = "http://evil.com"
-    test_url = url + "?redirect=" + target
+    test_url = response.url + "?redirect=" + target
 
     # Test whether the site allows the redirect to take place
     try:
-        response = requests.get(test_url, allow_redirects=False, timeout=5)
+        response_test = requests.get(test_url, allow_redirects=False, timeout=5)
         # Get "" if there is no "location"
-        location = response.headers.get("Location", "")
+        location = response_test.headers.get("Location", "")
         if target in location:
             issues.append(issue.Issue("Open redirect detected", "HIGH", test_url))
     except requests.RequestException:
-        print("Request Issue: " + url)
+        print("Request Issue: " + response.url)
 
 # Testing whether an error thrown in displayed to the user
-def test_error_disclosure(url):
+def test_error_disclosure(response):
     # url that should cause an error
-    test_url = url + "?input=%27%22--"  # ' " --
+    test_url = response.url + "?input=%27%22--"  # ' " --
 
     # check whether common error message words are displayed
     try:
-        response = requests.get(test_url, timeout=5)
+        response_test = requests.get(test_url, timeout=5)
         keywords = ["exception", "stack trace", "sql", "traceback", "error in", "warning:"]
-        if any(word in response.text.lower() for word in keywords):
+        if any(word in response_test.text.lower() for word in keywords):
             issues.append(issue.Issue("Possible error disclosure / debug info", "HIGH", test_url))
     except requests.RequestException:
-        print("Request Issue: " + url)
+        print("Request Issue: " + response.url)
 
 # Tests whether the admin pannel is accessable from a simple link
-def test_admin_accessibility(url):
+def test_admin_accessibility(response):
     # common paths to admin panel
     admin_paths = ["/admin", "/admin/login", "/dashboard", "/manage"]
     
     for path in admin_paths:
-        test_url = urljoin(url, path)
+        test_url = urljoin(response.url, path)
         try:
-            response = requests.get(test_url, timeout=5)
+            response_test = requests.get(test_url, timeout=5)
 
             # if the page loaded (code 200) and the user wasn't redirected to a login page
-            if response.status_code == 200 and "login" not in response.url.lower():
+            if response_test.status_code == 200 and "login" not in response_test.url.lower():
                 issues.append(issue.Issue("Accessible admin panel without authentication", "MEDIUM", test_url))
         except requests.RequestException:
             continue
 
 # Check if turning on debug mode is accessable to users
-def test_debug_mode(url):
+def test_debug_mode(response):
     # Test turning debug on from url
-    debug_url = url + "?debug=true"
+    debug_url = response.url + "?debug=true"
 
     try:
         # load debug_url
-        response = requests.get(debug_url, timeout=5)
+        response_test = requests.get(debug_url, timeout=5)
 
         # Common words to indicate that we are in debug mode
         debug_indicators = ["debug mode", "trace", "stack", "env", "config", "print_r"]
-        if any(word in response.text.lower() for word in debug_indicators):
+        if any(word in response_test.text.lower() for word in debug_indicators):
             issues.append(issue.Issue("Debug mode may be enabled", "MEDIUM", debug_url))
     except requests.RequestException:
-        print("Request Issue: " + url)
+        print("Request Issue: " + response.url)

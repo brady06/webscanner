@@ -11,6 +11,8 @@ def same_domain(url1, url2):
     
 # Extracts all relevent links from the webpage of the given url
 def extract_links(url):
+    global base_url
+    global visited_URLs
 
     # get HTML from given url
     try:
@@ -45,6 +47,9 @@ def extract_links(url):
 
 # reccursive helper method
 def crawl_helper(curr_url):
+    global curr_depth
+    global max_link_depth
+
     # If max depth has been reached, return nothing
     if curr_depth >= max_link_depth:
         return
