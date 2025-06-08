@@ -3,7 +3,7 @@ from scanner import crawler
 from scanner import issue
 from bs4 import BeautifulSoup, Comment
 import requests
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlencode, urlparse, parse_qs, urlunparse, urljoin
 
 # Returns a list of marked issues and their locations (url)
 def analyze_site(url, max_depth):
@@ -92,15 +92,15 @@ def HTML_static_checks(response):
 # Inject url to see if site reflects response
 def reflected_xss_check(response):
     # Insert
-    test_insert = "<script>alert('xss')</script>"
-    test_url = response.url + "?xss_test=" + test_insert
+    test_insert = "<script>/**/alert('xss')/**/</script>"
 
     try:
-        response_test = requests.get(test_url, timeout=5)
-
-        # Check for reflection
-        if test_insert in response_test.text:
-            issues.append(issue.Issue("Reflected XSS vulnerability detected", "HIGH", test_url))
+        for param in list(parse_qs(urlparse(response.url).query).keys()):
+            test_url = add_param_to_url(response.url, param, test_insert)
+            response_test = requests.get(test_url)
+            if test_insert in response_test.text:
+                issues.append(issue.Issue("Reflected XSS detected", "HIGH", test_url))
+                break
     except requests.RequestException:
         print("Request Issue: " + test_url)
 
@@ -165,3 +165,11 @@ def test_debug_mode(response):
             issues.append(issue.Issue("Debug mode may be enabled", "MEDIUM", debug_url))
     except requests.RequestException:
         print("Request Issue: " + response.url)
+
+# Properly add a paramater to a url
+def add_param_to_url(url, key, value):
+    parsed = urlparse(url)
+    query = parse_qs(parsed.query)
+    query[key] = value
+    new_query = urlencode(query, doseq=True)
+    return urlunparse(parsed._replace(query=new_query))
