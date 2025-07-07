@@ -1,5 +1,5 @@
 import sys
-from analyzer import analyze_site
+from scanner.analyzer import analyze_site
 
 if __name__ == "__main__":
     url = sys.argv[1]
