@@ -15,6 +15,7 @@ fn run_scan(url: String) -> String {
     use std::process::Command;
 
     let output = Command::new("python")
+        .current_dir("..")
         .arg("python/run_scan.py")
         .arg(&url)
         .output()
