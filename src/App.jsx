@@ -13,6 +13,7 @@ function App() {
       console.log("Method Passed 1")
       setScanResult(result);
       console.log("Method Passed 2")
+      console.log("Result: " + result);
     } catch (error) {
       console.error("Scan failed:", error);
       setScanResult("Error running scan.");
