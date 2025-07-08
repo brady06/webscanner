@@ -10,7 +10,9 @@ function App() {
     console.log("Method Activated")
     try {
       const result = await invoke("run_scan", { url });
+      console.log("Method Passed 1")
       setScanResult(result);
+      console.log("Method Passed 2")
     } catch (error) {
       console.error("Scan failed:", error);
       setScanResult("Error running scan.");
