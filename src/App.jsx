@@ -7,6 +7,7 @@ function App() {
   const [scanResult, setScanResult] = useState('');
 
   const runScanner = async () => {
+    console.log("Method Activated")
     try {
       const result = await invoke("run_scan", { url });
       setScanResult(result);
