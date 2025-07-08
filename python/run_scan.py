@@ -1,4 +1,5 @@
-import sys
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from scanner.analyzer import analyze_site
 
 if __name__ == "__main__":
