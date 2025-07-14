@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::Manager;
+use serde_json::Value;
 
 fn main() {
   tauri::Builder::default()
@@ -11,7 +12,7 @@ fn main() {
 }
 
 #[tauri::command]
-fn run_scan(url: String) -> String {
+fn run_scan(url: String) -> Result<Value, String> {
     use std::process::Command;
 
     let output = Command::new("python")
@@ -19,9 +20,9 @@ fn run_scan(url: String) -> String {
         .arg("python/run_scan.py")
         .arg(&url)
         .output()
-        .expect("failed to execute Python script");
+        .map_err(|e| e.to_string())?;
 
-    String::from_utf8_lossy(&output.stdout).to_string()
+    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
 
 
