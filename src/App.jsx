@@ -52,13 +52,25 @@ function App() {
       <button onClick={runScanner}>Scan</button>
       <div style={{ marginTop: '20px' }}>
         <h2>High Severity</h2>
-        {renderGroupedIssues(groupByUrl(high), 'h')}
+        {high.length === 0 ? (
+          <p>No high severity issues found.</p>
+        ) : (
+          renderGroupedIssues(groupByUrl(high), 'h')
+        )}
 
         <h2>Medium Severity</h2>
-        {renderGroupedIssues(groupByUrl(medium), 'm')}
+        {medium.length === 0 ? (
+          <p>No medium severity issues found.</p>
+        ) : (
+          renderGroupedIssues(groupByUrl(medium), 'm')
+        )}
 
         <h2>Low Severity</h2>
-        {renderGroupedIssues(groupByUrl(low), 'l')}
+        {low.length === 0 ? (
+          <p>No low severity issues found.</p>
+        ) : (
+          renderGroupedIssues(groupByUrl(low), 'l')
+        )}
       </div>
     </div>
   );
