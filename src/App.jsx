@@ -20,6 +20,25 @@ function App() {
   const medium = issues.filter((i) => i.severity === "MEDIUM");
   const low = issues.filter((i) => i.severity === "LOW");
 
+  const groupByUrl = (list) =>
+    list.reduce((acc, item) => {
+      if (!acc[item.url]) acc[item.url] = [];
+      acc[item.url].push(item.issue);
+      return acc;
+    }, {});
+
+  const renderGroupedIssues = (grouped, prefix) =>
+    Object.entries(grouped).map(([url, items]) => (
+      <div key={`${prefix}-${url}`}>
+        <h3>{url}</h3>
+        <ul>
+          {items.map((issue, idx) => (
+            <li key={`${prefix}-${url}-${idx}`}>{issue}</li>
+          ))}
+        </ul>
+      </div>
+    ));
+
   return (
     <div style={{ padding: 20 }}>
       <h1>Web Security Scanner</h1>
@@ -33,23 +52,13 @@ function App() {
       <button onClick={runScanner}>Scan</button>
       <div style={{ marginTop: '20px' }}>
         <h2>High Severity</h2>
-        <ul>
-          {high.map((i, idx) => (
-            <li key={`h-${idx}`}>{i.issue} - {i.url}</li>
-          ))}
-        </ul>
+        {renderGroupedIssues(groupByUrl(high), 'h')}
+
         <h2>Medium Severity</h2>
-        <ul>
-          {medium.map((i, idx) => (
-            <li key={`m-${idx}`}>{i.issue} - {i.url}</li>
-          ))}
-        </ul>
+        {renderGroupedIssues(groupByUrl(medium), 'm')}
+
         <h2>Low Severity</h2>
-        <ul>
-          {low.map((i, idx) => (
-            <li key={`l-${idx}`}>{i.issue} - {i.url}</li>
-          ))}
-        </ul>
+        {renderGroupedIssues(groupByUrl(low), 'l')}
       </div>
     </div>
   );
