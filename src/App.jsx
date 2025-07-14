@@ -4,21 +4,21 @@ import { invoke } from '@tauri-apps/api/core';
 
 function App() {
   const [url, setUrl] = useState('');
-  const [scanResult, setScanResult] = useState('');
+  const [issues, setIssues] = useState([]);
 
   const runScanner = async () => {
-    console.log("Method Activated")
     try {
       const result = await invoke("run_scan", { url });
-      console.log("Method Passed 1")
-      setScanResult(result);
-      console.log("Method Passed 2")
-      console.log("Result: " + result);
+      setIssues(result);
     } catch (error) {
       console.error("Scan failed:", error);
-      setScanResult("Error running scan.");
+      setIssues([]);
     }
   };
+
+  const high = issues.filter((i) => i.severity === "HIGH");
+  const medium = issues.filter((i) => i.severity === "MEDIUM");
+  const low = issues.filter((i) => i.severity === "LOW");
 
   return (
     <div style={{ padding: 20 }}>
@@ -31,7 +31,26 @@ function App() {
         style={{ width: '300px', marginRight: '10px' }}
       />
       <button onClick={runScanner}>Scan</button>
-      <pre style={{ marginTop: '20px' }}>{scanResult}</pre>
+      <div style={{ marginTop: '20px' }}>
+        <h2>High Severity</h2>
+        <ul>
+          {high.map((i, idx) => (
+            <li key={`h-${idx}`}>{i.issue} - {i.url}</li>
+          ))}
+        </ul>
+        <h2>Medium Severity</h2>
+        <ul>
+          {medium.map((i, idx) => (
+            <li key={`m-${idx}`}>{i.issue} - {i.url}</li>
+          ))}
+        </ul>
+        <h2>Low Severity</h2>
+        <ul>
+          {low.map((i, idx) => (
+            <li key={`l-${idx}`}>{i.issue} - {i.url}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
