@@ -5,13 +5,21 @@ import { invoke } from '@tauri-apps/api/core';
 function App() {
   const [url, setUrl] = useState('');
   const [issues, setIssues] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const runScanner = async () => {
     try {
       const result = await invoke("run_scan", { url });
-      setIssues(result);
+      if (result.error) {
+        setErrorMsg(result.error);
+        setIssues([]);
+      } else {
+        setErrorMsg('');
+        setIssues(result);
+      }
     } catch (error) {
       console.error("Scan failed:", error);
+      setErrorMsg('URL not found');
       setIssues([]);
     }
   };
@@ -42,6 +50,7 @@ function App() {
   return (
     <div style={{ padding: 20 }}>
       <h1>Web Security Scanner</h1>
+      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
       <input
         type="text"
         value={url}
