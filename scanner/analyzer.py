@@ -25,7 +25,16 @@ def analyze_site(url, max_depth):
         test_admin_accessibility(response)
         test_debug_mode(response)
 
-    return issues
+    # Remove duplicate issues (same message, severity, and URL)
+    unique = []
+    seen = set()
+    for item in issues:
+        key = (item.issue, getattr(item, "severity", "MEDIUM"), item.url)
+        if key not in seen:
+            seen.add(key)
+            unique.append(item)
+
+    return unique
 
 def check_security_headers(response):
     if "Content-Security-Policy" not in response.headers:

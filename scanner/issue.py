@@ -1,8 +1,5 @@
-# Imports
-
-# Object that stores issue data and methods
 class Issue:
-    def __init__(self, issue, severity, url):
+    def __init__(self, issue: str, severity: str, url: str):
         self.issue = issue
-        self.url = url
         self.severity = severity
+        self.url = url
