@@ -50,7 +50,6 @@ function App() {
   return (
     <div style={{ padding: 20 }}>
       <h1>Web Security Scanner</h1>
-      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
       <input
         type="text"
         value={url}
@@ -59,28 +58,32 @@ function App() {
         style={{ width: '300px', marginRight: '10px' }}
       />
       <button onClick={runScanner}>Scan</button>
-      <div style={{ marginTop: '20px' }}>
-        <h2>High Severity</h2>
-        {high.length === 0 ? (
-          <p>No high severity issues found.</p>
-        ) : (
-          renderGroupedIssues(groupByUrl(high), 'h')
-        )}
+      {errorMsg ? (
+        <p style={{ color: 'red', marginTop: '20px' }}>{errorMsg}</p>
+      ) : (
+        <div style={{ marginTop: '20px' }}>
+          <h2>High Severity</h2>
+          {high.length === 0 ? (
+            <p>No high severity issues found.</p>
+          ) : (
+            renderGroupedIssues(groupByUrl(high), 'h')
+          )}
 
-        <h2>Medium Severity</h2>
-        {medium.length === 0 ? (
-          <p>No medium severity issues found.</p>
-        ) : (
-          renderGroupedIssues(groupByUrl(medium), 'm')
-        )}
+          <h2>Medium Severity</h2>
+          {medium.length === 0 ? (
+            <p>No medium severity issues found.</p>
+          ) : (
+            renderGroupedIssues(groupByUrl(medium), 'm')
+          )}
 
-        <h2>Low Severity</h2>
-        {low.length === 0 ? (
-          <p>No low severity issues found.</p>
-        ) : (
-          renderGroupedIssues(groupByUrl(low), 'l')
-        )}
-      </div>
+          <h2>Low Severity</h2>
+          {low.length === 0 ? (
+            <p>No low severity issues found.</p>
+          ) : (
+            renderGroupedIssues(groupByUrl(low), 'l')
+          )}
+        </div>
+      )}
     </div>
   );
 }
