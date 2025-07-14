@@ -2,6 +2,7 @@ from scanner.analyzer import analyze_site
 from scanner.issue import Issue
 from rich.console import Console
 from rich.table import Table
+import requests
 
 console = Console()
 
@@ -28,6 +29,13 @@ def display_results(issues: list[Issue]):
 
 def main():
     url = get_url_from_user()
+    try:
+        resp = requests.get(url, timeout=5)
+        resp.raise_for_status()
+    except requests.RequestException:
+        console.print(f"[bold red]URL not found:[/bold red] {url}")
+        return
+
     console.print(f"[yellow]Scanning...[/yellow] [italic]{url}[/italic]")
 
     # Max depth = 2 for testing purposes
