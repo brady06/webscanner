@@ -48,16 +48,22 @@ function App() {
     ));
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Web Security Scanner</h1>
-      <input
-        type="text"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="Enter URL to scan"
-        style={{ width: '300px', marginRight: '10px' }}
-      />
-      <button onClick={runScanner}>Scan</button>
+    <div className="container">
+      <div className="header">
+        <h1 className="title">Web Security Scanner</h1>
+      </div>
+      <div className="input-section">
+        <input
+          className="url-input"
+          type="text"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Enter URL to scan"
+        />
+      </div>
+      <div className="button-section">
+        <button className="scan-button" onClick={runScanner}>Scan</button>
+      </div>
       {errorMsg ? (
         <p style={{ color: 'red', marginTop: '20px' }}>{errorMsg}</p>
       ) : (

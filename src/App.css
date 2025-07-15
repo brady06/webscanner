@@ -30,7 +30,7 @@
 
 .container {
   margin: 0;
-  padding-top: 10vh;
+  padding-top: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -66,6 +66,41 @@ a:hover {
 h1 {
   text-align: center;
   font-family: 'Share Tech Mono', monospace;
+}
+
+.header {
+  background-color: #1b5e20;
+  padding: 10px 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.input-section {
+  margin-top: 20px;
+}
+
+.url-input {
+  width: 300px;
+}
+
+.button-section {
+  margin-top: 10px;
+}
+
+.scan-button {
+  background-color: #1b5e20;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8em 1.6em;
+  font-size: 1.1em;
+}
+
+.scan-button:hover {
+  background-color: #186318;
 }
 
 input,
