@@ -67,7 +67,7 @@ function App() {
       {errorMsg ? (
         <p style={{ color: 'red', marginTop: '20px' }}>{errorMsg}</p>
       ) : (
-        <div style={{ marginTop: '20px' }}>
+        <div className="results-section" style={{ marginTop: '20px' }}>
           <h2>High Severity</h2>
           {high.length === 0 ? (
             <p>No high severity issues found.</p>
